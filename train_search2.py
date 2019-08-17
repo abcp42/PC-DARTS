@@ -89,35 +89,35 @@ def main():
         "custom", config.data, cutout_length=0, validation=True,validation2 = True)
   
   #balanced split to train/validation
-    print(train_data)
-    
-    # split data to train/validation
-    num_train = len(train_data)
-    n_val = len(val_dat)
-    n_test = len(test_dat)
-    indices1 = list(range(num_train))
-    indices2 = list(range(n_val))
-    indices3 = list(range(n_test))
-    train_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices1)
-    valid_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices2)
-    test_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices3)
-    
-    
-    train_queue = torch.utils.data.DataLoader(train_data,
-                                               batch_size=args.batch_size,
-                                               sampler=train_sampler,
-                                               num_workers=2,
-                                               pin_memory=True)
-    valid_queue = torch.utils.data.DataLoader(val_dat,
-                                               batch_size=args.batch_size,
-                                               sampler=valid_sampler,
-                                               num_workers=2,
-                                               pin_memory=True)
-    test_queue = torch.utils.data.DataLoader(test_dat,
-                                               batch_size=args.batch_size,
-                                               sampler=test_sampler,
-                                               num_workers=2,
-                                               pin_memory=True)
+  print(train_data)
+
+  # split data to train/validation
+  num_train = len(train_data)
+  n_val = len(val_dat)
+  n_test = len(test_dat)
+  indices1 = list(range(num_train))
+  indices2 = list(range(n_val))
+  indices3 = list(range(n_test))
+  train_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices1)
+  valid_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices2)
+  test_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices3)
+
+
+  train_queue = torch.utils.data.DataLoader(train_data,
+                                           batch_size=args.batch_size,
+                                           sampler=train_sampler,
+                                           num_workers=2,
+                                           pin_memory=True)
+  valid_queue = torch.utils.data.DataLoader(val_dat,
+                                           batch_size=args.batch_size,
+                                           sampler=valid_sampler,
+                                           num_workers=2,
+                                           pin_memory=True)
+  test_queue = torch.utils.data.DataLoader(test_dat,
+                                           batch_size=args.batch_size,
+                                           sampler=test_sampler,
+                                           num_workers=2,
+                                           pin_memory=True)
      
   """
   train_transform, valid_transform = utils._data_transforms_cifar10(args)
