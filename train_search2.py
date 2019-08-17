@@ -20,7 +20,9 @@ from architect import Architect
 
 
 parser = argparse.ArgumentParser("cifar")
-parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
+parser.add_argument('--train_data_path', type=str, default='/content/data/train', help='location of the data corpus')
+parser.add_argument('--val_data_path', type=str, default='/content/data/valid', help='location of the data corpus')
+parser.add_argument('--test_data_path', type=str, default='/content/data/test', help='location of the data corpus')
 parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
 parser.add_argument('--batch_size', type=int, default=256, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.1, help='init learning rate')
@@ -85,8 +87,8 @@ def main():
       momentum=args.momentum,
       weight_decay=args.weight_decay)
   
-  _, _, n_classes, train_data, test_dat, val_dat = utils2.get_data(
-        "custom", args.data, cutout_length=0, validation=True,validation2 = True)
+  _, _, n_classes, train_data,val_dat,test_dat = utils2.get_data(
+        "custom", args.train_data_path,args.val_data_path,args.test_data_path cutout_length=0, validation=True,validation2 = True)
   
   #balanced split to train/validation
   print(train_data)
