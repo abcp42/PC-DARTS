@@ -86,7 +86,7 @@ def main():
       weight_decay=args.weight_decay)
   
   _, _, n_classes, train_data, test_dat, val_dat = utils2.get_data(
-        "custom", config.data, cutout_length=0, validation=True,validation2 = True)
+        "custom", args.data, cutout_length=0, validation=True,validation2 = True)
   
   #balanced split to train/validation
   print(train_data)
