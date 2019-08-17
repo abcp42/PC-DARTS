@@ -252,12 +252,6 @@ def infer(valid_queue, model, criterion):
     preds = np.concatenate((preds,predicted.cpu().numpy().ravel()))
     targets = np.concatenate((targets,target.cpu().numpy().ravel()))
 
-    ###TOP 5 NAO EXISTE NAS MAAMAS OU NO GEO. TEM QUE TRATAR
-    maxk = 3 # Ignorando completamente o top5
-
-    _, pred = output.topk(maxk, 1, True, True)
-    pred = pred.t()
-
     if step % args.report_freq == 0:
       logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
   
