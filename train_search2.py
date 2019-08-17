@@ -5,6 +5,7 @@ import glob
 import numpy as np
 import torch
 import utils
+import utils2
 import logging
 import argparse
 import torch.nn as nn
@@ -83,7 +84,42 @@ def main():
       args.learning_rate,
       momentum=args.momentum,
       weight_decay=args.weight_decay)
-
+  
+  _, _, n_classes, train_data, test_dat, val_dat = utils2.get_data(
+        "custom", config.data, cutout_length=0, validation=True,validation2 = True)
+  
+  #balanced split to train/validation
+    print(train_data)
+    
+    # split data to train/validation
+    num_train = len(train_data)
+    n_val = len(val_dat)
+    n_test = len(test_dat)
+    indices1 = list(range(num_train))
+    indices2 = list(range(n_val))
+    indices3 = list(range(n_test))
+    train_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices1)
+    valid_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices2)
+    test_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices3)
+    
+    
+    train_queue = torch.utils.data.DataLoader(train_data,
+                                               batch_size=args.batch_size,
+                                               sampler=train_sampler,
+                                               num_workers=2,
+                                               pin_memory=True)
+    valid_queue = torch.utils.data.DataLoader(val_dat,
+                                               batch_size=args.batch_size,
+                                               sampler=valid_sampler,
+                                               num_workers=2,
+                                               pin_memory=True)
+    test_queue = torch.utils.data.DataLoader(test_dat,
+                                               batch_size=args.batch_size,
+                                               sampler=test_sampler,
+                                               num_workers=2,
+                                               pin_memory=True)
+     
+  """
   train_transform, valid_transform = utils._data_transforms_cifar10(args)
   if args.set=='cifar100':
       train_data = dset.CIFAR100(root=args.data, train=True, download=True, transform=train_transform)
@@ -94,6 +130,7 @@ def main():
   indices = list(range(num_train))
   split = int(np.floor(args.train_portion * num_train))
 
+  
   train_queue = torch.utils.data.DataLoader(
       train_data, batch_size=args.batch_size,
       sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
@@ -103,7 +140,7 @@ def main():
       train_data, batch_size=args.batch_size,
       sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:num_train]),
       pin_memory=True, num_workers=2)
-
+  """
   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, float(args.epochs), eta_min=args.learning_rate_min)
 
