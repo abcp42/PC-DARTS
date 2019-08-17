@@ -250,7 +250,9 @@ def infer(valid_queue, model, criterion):
     _, predicted = torch.max(output.data, 1)
     #minha alteracao
     preds = np.concatenate((preds,predicted.cpu().numpy().ravel()))
-    targets = np.concatenate((targets,target.cpu().numpy().ravel()))
+    #targets = np.concatenate((targets,target.cpu().numpy().ravel()))
+    targets = np.concatenate((targets,target.data.numpy().ravel()))
+
 
     if step % args.report_freq == 0:
       logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
