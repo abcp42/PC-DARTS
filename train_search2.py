@@ -251,7 +251,7 @@ def infer(valid_queue, model, criterion):
     #minha alteracao
     preds = np.concatenate((preds,predicted.cpu().numpy().ravel()))
     #targets = np.concatenate((targets,target.cpu().numpy().ravel()))
-    targets = np.concatenate((targets,target.data.numpy().ravel()))
+    targets = np.concatenate((targets,target.data.cpu().numpy().ravel()))
 
 
     if step % args.report_freq == 0:
