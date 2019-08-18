@@ -8,7 +8,7 @@ import numpy as np
 import preproc
 
 
-def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, validation,validation2 = False):
+def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, validation,validation2 = False,n_class = 3):
     """ Get torchvision dataset """
     dataset = dataset.lower()
 
@@ -23,7 +23,7 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         n_classes = 10
     elif dataset == 'custom':
         dset_cls = dset.ImageFolder
-        n_classes = 3 #2 to mama
+        n_classes = n_class #2 to mama
     else:
         raise ValueError(dataset)
 
