@@ -167,6 +167,9 @@ def main():
     #if args.epochs-epoch<=1:
     valid_acc, valid_obj = infer(valid_queue, model, criterion)
     logging.info('valid_acc %f', valid_acc)
+    
+    test_acc,test_obj = infer(test_queue, model, criterion)
+    logging.info('test_acc %f', test_acc)
 
     utils.save(model, os.path.join(args.save, 'weights.pt'))
 
