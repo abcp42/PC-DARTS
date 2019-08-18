@@ -25,6 +25,7 @@ parser.add_argument('--val_data_path', type=str, default='/content/data/valid', 
 parser.add_argument('--test_data_path', type=str, default='/content/data/test', help='location of the data corpus')
 parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
 parser.add_argument('--batch_size', type=int, default=256, help='batch size')
+parser.add_argument('--image_size', type=int, default=64, help='batch size')
 parser.add_argument('--n_class', type=int, default=3, help='number of classes')
 parser.add_argument('--learning_rate', type=float, default=0.1, help='init learning rate')
 parser.add_argument('--learning_rate_min', type=float, default=0.001, help='min learning rate')
@@ -89,7 +90,7 @@ def main():
       weight_decay=args.weight_decay)
   
   _, _, n_classes, train_data,val_dat,test_dat = utils2.get_data(
-        "custom", args.train_data_path,args.val_data_path,args.test_data_path, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class)
+        "custom", args.train_data_path,args.val_data_path,args.test_data_path, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
   
   #balanced split to train/validation
   print(train_data)
