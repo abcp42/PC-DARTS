@@ -149,7 +149,7 @@ def main():
         optimizer, float(args.epochs), eta_min=args.learning_rate_min)
 
   architect = Architect(model, args)
-
+  bestMetric = -999
   for epoch in range(args.epochs):
     scheduler.step()
     lr = scheduler.get_lr()[0]
@@ -172,9 +172,12 @@ def main():
     
     test_acc,test_obj = infer(test_queue, model, criterion)
     logging.info('test_acc %f', test_acc)
-
+    
     utils.save(model, os.path.join(args.save, 'weights.pt'))
-
+    if(valid_acc > bestMetric):
+        bestMetric = valid_acc
+        utils.save(model, os.path.join(args.save, 'best_weights.pt'))
+        
 
 def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,epoch):
   objs = utils.AvgrageMeter()
