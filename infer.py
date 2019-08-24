@@ -58,6 +58,7 @@ def main():
   
   print('genotype')
   genotype = eval("genotypes.%s" % args.arch)
+  print('network')
   model = Network(args.init_channels, args.n_class, args.layers, args.auxiliary, genotype)
   model = model.cuda()
   print('load')
