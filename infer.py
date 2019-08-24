@@ -68,7 +68,7 @@ def main():
 
   #_, test_transform = utils._data_transforms_cifar10(args)
   #test_data = dset.CIFAR10(root=args.data, train=False, download=True, transform=test_transform)
-   _, _, _, _,_,test_dat = utils2.get_data("custom", args.data,args.data,args.data, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
+  _, _, _, _,_,test_dat = utils2.get_data("custom", args.data,args.data,args.data, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
 
   test_queue = torch.utils.data.DataLoader(
       test_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
