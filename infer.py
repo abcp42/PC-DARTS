@@ -55,9 +55,10 @@ def main():
   torch.cuda.manual_seed(args.seed)
   logging.info('gpu device = %d' % args.gpu)
   logging.info("args = %s", args)
-
+  
+  print('genotype')
   genotype = eval("genotypes.%s" % args.arch)
-  model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
+  model = Network(args.init_channels, args.n_class, args.layers, args.auxiliary, genotype)
   model = model.cuda()
   print('load')
   utils.load(model, args.model_path)
