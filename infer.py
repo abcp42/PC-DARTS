@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import torch
 import utils
+import utils2
 import logging
 import argparse
 import torch.nn as nn
@@ -22,6 +23,8 @@ parser.add_argument('--batch_size', type=int, default=96, help='batch size')
 parser.add_argument('--report_freq', type=float, default=50, help='report frequency')
 parser.add_argument('--gpu', type=int, default=0, help='gpu device id')
 parser.add_argument('--init_channels', type=int, default=36, help='num of init channels')
+parser.add_argument('--image_size', type=int, default=64, help='batch size')
+parser.add_argument('--n_class', type=int, default=5, help='number of classes')
 parser.add_argument('--layers', type=int, default=20, help='total number of layers')
 parser.add_argument('--model_path', type=str, default='EXP/model.pt', help='path of pretrained model')
 parser.add_argument('--auxiliary', action='store_true', default=False, help='use auxiliary tower')
@@ -63,8 +66,10 @@ def main():
   criterion = nn.CrossEntropyLoss()
   criterion = criterion.cuda()
 
-  _, test_transform = utils._data_transforms_cifar10(args)
-  test_data = dset.CIFAR10(root=args.data, train=False, download=True, transform=test_transform)
+  #_, test_transform = utils._data_transforms_cifar10(args)
+  #test_data = dset.CIFAR10(root=args.data, train=False, download=True, transform=test_transform)
+   _, _, _, _,_,test_dat = utils2.get_data(
+        "custom", args.data,args.data,args.data, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
 
   test_queue = torch.utils.data.DataLoader(
       test_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
