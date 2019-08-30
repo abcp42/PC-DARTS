@@ -168,6 +168,8 @@ def infer(valid_queue, model, criterion):
   top1 = utils.AvgrageMeter()
   top5 = utils.AvgrageMeter()
   model.eval()
+  preds = np.asarray([])
+  targets = np.asarray([])
 
   for step, (input, target) in enumerate(valid_queue):
     input = Variable(input, volatile=True).cuda()
@@ -181,9 +183,41 @@ def infer(valid_queue, model, criterion):
     objs.update(loss.data[0], n)
     top1.update(prec1.data[0], n)
     top5.update(prec5.data[0], n)
+    
+    #minha alteracao
+    output = logits
+    topk = (1,3)
+    maxk = max(topk)
+    batch_size = target.size(0)
+    _, predicted = torch.max(output.data, 1)
+    #minha alteracao
+    preds = np.concatenate((preds,predicted.cpu().numpy().ravel()))
+    #targets = np.concatenate((targets,target.cpu().numpy().ravel()))
+    targets = np.concatenate((targets,target.data.cpu().numpy().ravel()))
+
 
     if step % args.report_freq == 0:
       logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
+
+  print(preds.shape)
+  print(targets.shape)
+  print('np.unique(targets):',np.unique(targets))
+  print('np.unique(preds): ',np.unique(preds))
+  from sklearn.metrics import classification_report
+  from sklearn.metrics import accuracy_score
+  print(accuracy_score(targets, preds))
+  cr = classification_report(targets, preds,output_dict= True)
+  a1,a2,a3 = cr['macro avg']['f1-score'] ,cr['macro avg']['precision'],cr['macro avg']['recall'] 
+  topover = (a1+a2+a3)/3 
+  print(classification_report(targets, preds))
+  from sklearn.metrics import balanced_accuracy_score
+  from sklearn.metrics import accuracy_score
+  print(balanced_accuracy_score(targets, preds))
+  print(accuracy_score(targets, preds))
+  from sklearn.metrics import confusion_matrix
+  matrix = confusion_matrix(targets, preds)
+  print(matrix.diagonal()/matrix.sum(axis=1))
+  print(matrix)
 
   return top1.avg, objs.avg
 
