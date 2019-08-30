@@ -23,6 +23,8 @@ parser.add_argument('--train_data_path', type=str, default='/content/data/train'
 parser.add_argument('--val_data_path', type=str, default='/content/data/valid', help='location of the data corpus')
 parser.add_argument('--test_data_path', type=str, default='/content/data/test', help='location of the data corpus')
 parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
+parser.add_argument('--image_size', type=int, default=64, help='batch size')
+parser.add_argument('--n_class', type=int, default=3, help='number of classes')
 parser.add_argument('--batch_size', type=int, default=96, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.025, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
