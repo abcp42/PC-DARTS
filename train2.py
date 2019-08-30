@@ -5,6 +5,7 @@ import glob
 import numpy as np
 import torch
 import utils
+import utils2
 import logging
 import argparse
 import torch.nn as nn
@@ -52,6 +53,7 @@ fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 
 CIFAR_CLASSES = 10
+CIFAR_CLASSES = 3
 
 if args.set=='cifar100':
     CIFAR_CLASSES = 100
@@ -83,7 +85,15 @@ def main():
       momentum=args.momentum,
       weight_decay=args.weight_decay
       )
-
+  
+  _, _, _, train_data,valid_data,test_data = utils2.get_data("custom", args.data,args.data,args.data, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
+  train_queue = torch.utils.data.DataLoader(
+      train_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
+  valid_queue = torch.utils.data.DataLoader(
+      valid_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
+  test_queue = torch.utils.data.DataLoader(
+      test_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
+  """
   train_transform, valid_transform = utils._data_transforms_cifar10(args)
   if args.set=='cifar100':
       train_data = dset.CIFAR100(root=args.data, train=True, download=True, transform=train_transform)
@@ -99,7 +109,7 @@ def main():
 
   valid_queue = torch.utils.data.DataLoader(
       valid_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
-
+  """
   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
   best_acc = 0.0
   for epoch in range(args.epochs):
