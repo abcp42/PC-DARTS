@@ -117,6 +117,7 @@ def main():
   best_acc = 0.0
   bestMetric = -999
   for epoch in range(args.epochs):
+    logging.info('genotype = %s', genotype)
     scheduler.step()
     logging.info('epoch %d lr %e', epoch, scheduler.get_lr()[0])
     model.drop_path_prob = args.drop_path_prob * epoch / args.epochs
