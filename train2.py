@@ -19,7 +19,9 @@ from model import NetworkCIFAR as Network
 
 
 parser = argparse.ArgumentParser("cifar")
-parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
+parser.add_argument('--train_data_path', type=str, default='/content/data/train', help='location of the data corpus')
+parser.add_argument('--val_data_path', type=str, default='/content/data/valid', help='location of the data corpus')
+parser.add_argument('--test_data_path', type=str, default='/content/data/test', help='location of the data corpus')
 parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
 parser.add_argument('--batch_size', type=int, default=96, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.025, help='init learning rate')
@@ -86,7 +88,7 @@ def main():
       weight_decay=args.weight_decay
       )
   
-  _, _, _, train_data,valid_data,test_data = utils2.get_data("custom", args.data,args.data,args.data, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
+  _, _, _, train_data,valid_data,test_data = utils2.get_data("custom", args.train_data_path,args.val_data_path,args.test_data_path, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
   train_queue = torch.utils.data.DataLoader(
       train_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
   valid_queue = torch.utils.data.DataLoader(
