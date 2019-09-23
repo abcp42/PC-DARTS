@@ -72,7 +72,8 @@ def main():
   #torch.cuda.set_device(args.gpu)
   cudnn.benchmark = True
   torch.manual_seed(args.seed)
-  cudnn.enabled=True
+  #cudnn.enabled=True
+  cudnn.enabled=False
   torch.cuda.manual_seed(args.seed)
   logging.info('gpu device = %d' % args.gpu)
   logging.info("args = %s", args)
