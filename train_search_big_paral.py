@@ -16,7 +16,7 @@ import torch.backends.cudnn as cudnn
 
 from torch.autograd import Variable
 from model_search_imagenet import Network
-from architect import Architect
+from architect_paral import Architect
 
 
 parser = argparse.ArgumentParser("cifar")
