@@ -69,7 +69,7 @@ def main():
     sys.exit(1)
 
   np.random.seed(args.seed)
-  torch.cuda.set_device(args.gpu)
+  #torch.cuda.set_device(args.gpu)
   cudnn.benchmark = True
   torch.manual_seed(args.seed)
   cudnn.enabled=True
