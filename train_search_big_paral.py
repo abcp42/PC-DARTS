@@ -156,7 +156,7 @@ def main():
     lr = scheduler.get_lr()[0]
     logging.info('epoch %d lr %e', epoch, lr)
 
-    genotype = model.genotype()
+    genotype = model.module.genotype()
     logging.info('genotype = %s', genotype)
 
     #print(F.softmax(model.alphas_normal, dim=-1))
@@ -209,7 +209,7 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,e
     loss = criterion(logits, target)
 
     loss.backward()
-    nn.utils.clip_grad_norm(model.parameters(), args.grad_clip)
+    nn.utils.clip_grad_norm(model.module.parameters(), args.grad_clip)
     optimizer.step()
 
     prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
@@ -230,7 +230,7 @@ def infer(valid_queue, model, criterion):
   objs = utils.AvgrageMeter()
   top1 = utils.AvgrageMeter()
   top5 = utils.AvgrageMeter()
-  model.eval()
+  model.module.eval()
   preds = np.asarray([])
   targets = np.asarray([])
 
