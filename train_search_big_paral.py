@@ -208,6 +208,7 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,e
     a = input.cpu().numpy()
     a = np.asarray(a)
     print(a.shape)
+    input = np.zeros((16,32,32,3))
     logits = model(input)
     loss = criterion(logits, target)
 
