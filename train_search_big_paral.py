@@ -208,7 +208,7 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,e
     a = input.cpu().numpy()
     a = np.asarray(a)
     print(a.shape)
-    input = np.zeros((16,32,32,3))
+    input = np.zeros((8,3,32,32))
     input = torch.Tensor(input)
     input = Variable(input, requires_grad=False).cuda()
     logits = model(input)
