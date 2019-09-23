@@ -205,6 +205,8 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,e
       architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled)
 
     optimizer.zero_grad()
+    a = input.cpu().numpy().ravel()
+    print(a.shape())
     logits = model(input)
     loss = criterion(logits, target)
 
