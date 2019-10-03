@@ -40,6 +40,13 @@ parser.add_argument('--label_smooth', type=float, default=0.1, help='label smoot
 parser.add_argument('--lr_scheduler', type=str, default='linear', help='lr scheduler, linear or cosine')
 parser.add_argument('--tmp_data_dir', type=str, default='/tmp/cache/', help='temp data dir')
 parser.add_argument('--note', type=str, default='try', help='note for this run')
+parser.add_argument('--train_data_path', type=str, default='/content/data/train', help='location of the data corpus')
+parser.add_argument('--val_data_path', type=str, default='/content/data/valid', help='location of the data corpus')
+parser.add_argument('--test_data_path', type=str, default='/content/data/test', help='location of the data corpus')
+parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
+parser.add_argument('--image_size', type=int, default=300, help='batch size')
+parser.add_argument('--n_class', type=int, default=3, help='number of classes')
+parser.add_argument('--gpu', type=int, default=0, help='gpu device id')
 
 
 args, unparsed = parser.parse_known_args()
@@ -76,13 +83,15 @@ def main():
         logging.info('No GPU device available')
         sys.exit(1)
     np.random.seed(args.seed)
+    torch.cuda.set_device(args.gpu)
     cudnn.benchmark = True
     torch.manual_seed(args.seed)
     cudnn.enabled=True
     torch.cuda.manual_seed(args.seed)
     logging.info("args = %s", args)
     logging.info("unparsed_args = %s", unparsed)
-    num_gpus = torch.cuda.device_count()   
+    #num_gpus = torch.cuda.device_count()   
+    num_gpus = 1
     genotype = eval("genotypes.%s" % args.arch)
     print('---------Genotype---------')
     logging.info(genotype)
@@ -105,11 +114,13 @@ def main():
         args.learning_rate,
         momentum=args.momentum,
         weight_decay=args.weight_decay
-        )
+    )
+    """
     data_dir = os.path.join(args.tmp_data_dir, 'imagenet')
     traindir = os.path.join(data_dir, 'train')
     validdir = os.path.join(data_dir, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    
     train_data = dset.ImageFolder(
         traindir,
         transforms.Compose([
@@ -131,7 +142,10 @@ def main():
             transforms.ToTensor(),
             normalize,
         ]))
-
+    """
+    _, _, n_classes, train_data,val_dat,test_dat = utils2.get_data(
+        "custom", args.train_data_path,args.val_data_path,args.test_data_path, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
+  
     train_queue = torch.utils.data.DataLoader(
         train_data, batch_size=args.batch_size, shuffle=True, pin_memory=True, num_workers=args.workers)
 
