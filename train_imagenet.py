@@ -4,6 +4,7 @@ import numpy as np
 import time
 import torch
 import utils
+import utils2
 import glob
 import random
 import logging
@@ -21,7 +22,7 @@ from model import NetworkImageNet as Network
 
 parser = argparse.ArgumentParser("training imagenet")
 parser.add_argument('--workers', type=int, default=32, help='number of workers to load dataset')
-parser.add_argument('--batch_size', type=int, default=256, help='batch size')
+parser.add_argument('--batch_size', type=int, default=32, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.1, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 parser.add_argument('--weight_decay', type=float, default=3e-5, help='weight decay')
@@ -38,13 +39,13 @@ parser.add_argument('--arch', type=str, default='PCDARTS', help='which architect
 parser.add_argument('--grad_clip', type=float, default=5., help='gradient clipping')
 parser.add_argument('--label_smooth', type=float, default=0.1, help='label smoothing')
 parser.add_argument('--lr_scheduler', type=str, default='linear', help='lr scheduler, linear or cosine')
-parser.add_argument('--tmp_data_dir', type=str, default='cache/', help='temp data dir')
+parser.add_argument('--tmp_data_dir', type=str, default='/tmp/cache/', help='temp data dir')
 parser.add_argument('--note', type=str, default='try', help='note for this run')
 parser.add_argument('--train_data_path', type=str, default='/content/data/train', help='location of the data corpus')
 parser.add_argument('--val_data_path', type=str, default='/content/data/valid', help='location of the data corpus')
 parser.add_argument('--test_data_path', type=str, default='/content/data/test', help='location of the data corpus')
 parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
-parser.add_argument('--image_size', type=int, default=300, help='batch size')
+parser.add_argument('--image_size', type=int, default=32, help='batch size')
 parser.add_argument('--n_class', type=int, default=3, help='number of classes')
 parser.add_argument('--gpu', type=int, default=0, help='gpu device id')
 
@@ -86,7 +87,8 @@ def main():
     torch.cuda.set_device(args.gpu)
     cudnn.benchmark = True
     torch.manual_seed(args.seed)
-    cudnn.enabled=True
+    #cudnn.enabled=True
+    cudnn.enabled=False
     torch.cuda.manual_seed(args.seed)
     logging.info("args = %s", args)
     logging.info("unparsed_args = %s", unparsed)
@@ -96,7 +98,7 @@ def main():
     print('---------Genotype---------')
     logging.info(genotype)
     print('--------------------------') 
-    model = Network(args.init_channels, CLASSES, args.layers, args.auxiliary, genotype)
+    model = Network(args.init_channels, args.n_class, args.layers, args.auxiliary, genotype)
     if num_gpus > 1:
         model = nn.DataParallel(model)
         model = model.cuda()
@@ -115,8 +117,9 @@ def main():
         momentum=args.momentum,
         weight_decay=args.weight_decay
     )
+    
+    data_dir = args.tmp_data_dir
     """
-    data_dir = os.path.join(args.tmp_data_dir, 'imagenet')
     traindir = os.path.join(data_dir, 'train')
     validdir = os.path.join(data_dir, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -143,7 +146,7 @@ def main():
             normalize,
         ]))
     """
-    _, _, n_classes, train_data,val_dat,test_dat = utils2.get_data(
+    _, _, n_classes, train_data,valid_data,test_data = utils2.get_data(
         "custom", args.train_data_path,args.val_data_path,args.test_data_path, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
   
     train_queue = torch.utils.data.DataLoader(
