@@ -91,7 +91,7 @@ def main():
       momentum=args.momentum,
       weight_decay=args.weight_decay)
   
-  _, _, n_classes, train_data,val_dat,test_dat = utils2.get_data(
+  _, _, n_classes, train_data,test_dat = utils2.get_data(
         "custom", args.train_data_path,args.val_data_path,args.test_data_path, cutout_length=0, validation=True,validation2 = True,n_class = args.n_class, image_size = args.image_size)
   
   #balanced split to train/validation
@@ -99,13 +99,10 @@ def main():
 
   # split data to train/validation
   num_train = len(train_data)
-  n_val = len(val_dat)
   n_test = len(test_dat)
   indices1 = list(range(num_train))
-  indices2 = list(range(n_val))
   indices3 = list(range(n_test))
   train_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices1)
-  valid_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices2)
   test_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices3)
 
 
@@ -114,39 +111,13 @@ def main():
                                            sampler=train_sampler,
                                            num_workers=2,
                                            pin_memory=True)
-  valid_queue = torch.utils.data.DataLoader(val_dat,
-                                           batch_size=args.batch_size,
-                                           sampler=valid_sampler,
-                                           num_workers=2,
-                                           pin_memory=True)
   test_queue = torch.utils.data.DataLoader(test_dat,
                                            batch_size=args.batch_size,
                                            sampler=test_sampler,
                                            num_workers=2,
                                            pin_memory=True)
      
-  """
-  train_transform, valid_transform = utils._data_transforms_cifar10(args)
-  if args.set=='cifar100':
-      train_data = dset.CIFAR100(root=args.data, train=True, download=True, transform=train_transform)
-  else:
-      train_data = dset.CIFAR10(root=args.data, train=True, download=True, transform=train_transform)
 
-  num_train = len(train_data)
-  indices = list(range(num_train))
-  split = int(np.floor(args.train_portion * num_train))
-
-  
-  train_queue = torch.utils.data.DataLoader(
-      train_data, batch_size=args.batch_size,
-      sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
-      pin_memory=True, num_workers=2)
-
-  valid_queue = torch.utils.data.DataLoader(
-      train_data, batch_size=args.batch_size,
-      sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:num_train]),
-      pin_memory=True, num_workers=2)
-  """
   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, float(args.epochs), eta_min=args.learning_rate_min)
 
@@ -167,17 +138,13 @@ def main():
     train_acc, train_obj = train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,epoch)
     logging.info('train_acc %f', train_acc)
 
-    # validation
-    #if args.epochs-epoch<=1:
-    valid_acc, valid_obj = infer(valid_queue, model, criterion)
-    logging.info('valid_acc %f', valid_acc)
     
     test_acc,test_obj = infer(test_queue, model, criterion)
     logging.info('test_acc %f', test_acc)
     
     utils.save(model, os.path.join(args.save, 'weights.pt'))
-    if(valid_acc > bestMetric):
-        bestMetric = valid_acc
+    if(test_acc > bestMetric):
+        bestMetric = test_acc
         utils.save(model, os.path.join(args.save, 'best_weights.pt'))
         
 
