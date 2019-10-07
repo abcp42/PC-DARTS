@@ -206,6 +206,7 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         X_train,X_test,y_train,y_test = kfold(Xs,Ys,2,1)#dividido em 5 folds, 1 forma de fold
         
         x_train_data = []
+        x_test_data = []
         for x_path in X_train:
             x = reader.load_img(x_path)
             x_re = cv2.resize(x,(image_size,image_size))
