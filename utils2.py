@@ -8,6 +8,163 @@ import numpy as np
 import preproc
 
 
+import os
+import sys
+#import tensorflow as tf
+import numpy as np
+from PIL import Image
+from obspy.io.segy.segy import _read_segy
+import matplotlib.pyplot as plt
+
+class SegyReader(object):
+
+    def __init__(self, path, labels_path, batch_size, file_extension=".sgy", max_size=-1):
+        """
+        :param path:
+        :param labels_path:
+        :param batch_size:
+        :param file_extension:
+        :param max_size:
+        """
+        self._idx = None
+        self.path = path
+        self.labels_path = labels_path
+        self._paths = list()
+        self._labels = list()
+        self._file_extension = file_extension
+        self._max_size = max_size
+        self._batch_size = batch_size
+        self.load_data()
+
+    def load_data(self):
+        with open(self.labels_path, 'r') as f:
+            for row in f:
+                name, label = row.split(",")
+                label = label.lower().strip()
+                name = name.strip().replace(".png", ".segy")
+                self._paths.append(os.path.join(self.path, name))
+                if label == "good":
+                    self._labels.append(0)
+                elif label == "bad":
+                    self._labels.append(1)
+                elif label == "ugly":
+                    self._labels.append(2)
+                else:
+                    raise ValueError("Label not recognized. Found in data: '{}'".format(label))
+                if 0 < self._max_size == len(self._paths):
+                    break
+
+        self._paths = np.asarray(self._paths)
+        self._labels = np.asarray(self._labels)
+
+    def load_from_dir(self):
+        self._paths = list()
+        self._labels = list()
+        for root, _, files in os.walk(self.path):
+            for file in files:
+                if not file.endswith(self._file_extension):
+                    continue
+                file_path = os.path.join(root, file)
+                self._paths.append(file_path)
+                self._labels.append(0)
+
+                if 0 < self._max_size == len(self._paths):
+                    break
+        self._paths = np.asarray(self._paths)
+        self._labels = np.asarray(self._labels)
+
+    def __len__(self):
+        return len(self._paths)
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self._paths[item], self._labels[item]
+
+        elif isinstance(item, slice):
+            return self._paths[item], self._labels[item]
+
+    def __iter__(self):
+        """
+        Iterator initializer.
+        """
+        self._idx = 0
+        return self
+
+    def __next__(self):
+        """
+        Returns the iterator's next element.
+        """
+        mod_batch = len(self) % self._batch_size
+        if self._idx >= (len(self) - mod_batch):
+
+            perm = np.random.permutation(len(self._paths))
+            self._paths = self._paths[perm]
+            self._labels = self._labels[perm]
+
+            raise StopIteration()
+
+        x = self.load_img(self._paths[self._idx])
+        y = self._labels[self._idx]
+        # index sum
+        self._idx += 1
+        return x, y
+
+    def make_dataset(self):
+        """
+        Returns a tensorflow Dataset created from this current iterator.
+        :return: a `tf.data.Dataset`.
+        """
+        batch_size = self._batch_size
+        prefetch_buffer = 10
+        dataset = tf.data.Dataset.from_generator(
+            generator=lambda: iter(self),
+            output_types=(tf.float32, tf.int32),
+            # output_shapes=self._inputs_config["output_shapes"]
+        )
+        dataset = dataset.batch(batch_size)
+        return dataset.prefetch(buffer_size=prefetch_buffer)
+
+    def load_img(self, img_path):
+        """
+        reads and normalize a seismogram from the given segy file.
+        :param img_path: a path to the segy file.
+        :return: seismogram image as numpy array normalized between 0-1.
+        """
+        segy = _read_segy(img_path)
+        _traces = list()
+        for trace in segy.traces:
+            _traces.append(trace.data)
+        x = np.asarray(_traces, dtype=np.float32)
+        std = x.std()
+        x -= x.mean()
+        x /= std
+        x *= 0.1
+        x += .5
+        x = np.clip(x, 0, 1)
+
+        return x.T
+    
+
+import numpy as np
+from sklearn.model_selection import StratifiedKFold
+
+def kfold(files,labels,nfolds = 5, nsplit = 5):
+  X = np.asarray(files)
+  y = np.asarray(labels)
+  skf = StratifiedKFold(n_splits=nfolds, random_state= 33,shuffle = True)
+  skf.get_n_splits(X, y)
+  i = 1
+  for train_index, test_index in skf.split(X, y):
+    if(i!=nsplit):
+      i+=1
+      continue
+    print("TRAIN:", train_index, "TEST:", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+    break
+  return X_train,X_test,y_train,y_test
+
+
 def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, validation,validation2 = False,n_class = 3,image_size = 64):
     """ Get torchvision dataset """
     dataset = dataset.lower()
@@ -30,7 +187,44 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
     trn_transform, val_transform = preproc.data_transforms(dataset, cutout_length,image_size)
     if dataset == 'custom':
         print("DATA PATH:", data_path)
-        trn_data = dset_cls(root=data_path, transform=trn_transform)
+        #trn_data = dset_cls(root=data_path, transform=trn_transform)
+        reader = SegyReader(
+            path=data_path,
+            labels_path=data_path+"../labels.txt",
+            batch_size=1
+        )
+        Xs = []
+        Ys = []
+        for i in range(len(reader)):
+            x_path, y = reader[i]
+            Xs.append(x_path)
+            Ys.append(y)
+        
+            
+           
+        X_train,X_test,y_train,y_test = kfold(Xs,Ys,10,1)#dividido em 5 folds, 1 forma de fold
+        
+        x_train_data = []
+        for x_path in X_train:
+            x = reader.load_img(x_path)
+            x_train_data.append(x)
+        for x_path in X_test:
+            x = reader.load_img(x_path)
+            x_test_data.append(x)
+        x_train_data = np.asarray(x_train_data)
+        x_test_data = np.asarray(x_test_data)
+        y_train = np.asarray(y_train)
+        y_test = np.asarray(y_test)
+            
+        
+        tensor_train_x = torch.stack([torch.Tensor(i) for i in x_train_data]) # transform to torch tensors
+        tensor_train_y = torch.stack([torch.Tensor(i) for i in y_train])
+        tensor_test_x = torch.stack([torch.Tensor(i) for i in x_test_data]) # transform to torch tensors
+        tensor_test_y = torch.stack([torch.Tensor(i) for i in y_test])
+
+        train_dataset = utils.TensorDataset(tensor_train_x,tensor_train_y) # create your datset
+        test_dataset = utils.TensorDataset(tensor_test_x,tensor_test_y) # create your datset
+        #train_dataloader = utils.DataLoader(train_dataset) # create your dataloader
         #dataset_loader = torch.utils.data.DataLoader(trn_data,
         #                                     batch_size=16, shuffle=True,
         #                                     num_workers=1)
@@ -48,9 +242,12 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
     assert shape[1] == shape[2], "not expected shape = {}".format(shape)
     input_size = shape[1]
     print('input_size: uitls',input_size)
-
+    
+    ret = [input_size, input_channels, n_classes, train_dataset,test_dataset]
+    
+    """
     ret = [input_size, input_channels, n_classes, trn_data]
-        
+     
     if validation: # append validation data
         if dataset == 'custom':
             dset_cls = dset.ImageFolder(val1_data_path,transform=val_transform)
@@ -61,6 +258,7 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         if dataset == 'custom':
             dset_cls = dset.ImageFolder(val2_data_path,transform=trn_transform)
             ret.append(dset_cls)
+    """
     return ret
 
 
