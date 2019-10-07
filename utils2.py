@@ -199,7 +199,9 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         for i in range(len(reader)):
             x_path, y = reader[i]
             Xs.append(x_path)
-            Ys.append(y)
+            one_hot_y = np.zeros(3)
+            one_hot_y[y] = 1
+            Ys.append(one_hot_y)
         
             
            
@@ -224,9 +226,6 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         y_test = np.asarray(y_test)
         
         num_classes = 3
-        y_train  = (y_train == torch.arange(num_classes).reshape(1, num_classes)).float()
-        y_test = (y_test == torch.arange(num_classes).reshape(1, num_classes)).float()
-
             
         print(y_train)
         tensor_train_x = torch.stack([torch.Tensor(i) for i in x_train_data]) # transform to torch tensors
