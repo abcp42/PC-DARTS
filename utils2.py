@@ -222,6 +222,11 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         x_test_data = np.asarray(x_test_data)
         y_train = np.asarray(y_train)
         y_test = np.asarray(y_test)
+        
+        num_classes = 3
+        y_train  = (y_train == torch.arange(num_classes).reshape(1, num_classes)).float()
+        y_test = (y_test == torch.arange(num_classes).reshape(1, num_classes)).float()
+
             
         print(y_train)
         tensor_train_x = torch.stack([torch.Tensor(i) for i in x_train_data]) # transform to torch tensors
