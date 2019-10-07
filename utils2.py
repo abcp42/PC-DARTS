@@ -15,6 +15,7 @@ import numpy as np
 from PIL import Image
 from obspy.io.segy.segy import _read_segy
 import matplotlib.pyplot as plt
+import cv2
 
 class SegyReader(object):
 
@@ -207,10 +208,15 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         x_train_data = []
         for x_path in X_train:
             x = reader.load_img(x_path)
-            x_train_data.append(x)
+            x_re = cv2.resize(x,(image_size,image_size))
+            rgb = cv2.merge([x_re,x_re,x_re])
+            x_train_data.append(rgb)
         for x_path in X_test:
             x = reader.load_img(x_path)
-            x_test_data.append(x)
+            x_re = cv2.resize(x,(image_size,image_size))
+            rgb = cv2.merge([x_re,x_re,x_re])
+            x_test_data.append(rgb)
+            
         x_train_data = np.asarray(x_train_data)
         x_test_data = np.asarray(x_test_data)
         y_train = np.asarray(y_train)
