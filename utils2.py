@@ -224,20 +224,22 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         y_test = np.asarray(y_test)
         
         num_classes = 3
+        one_hot_y_train = []
+        one_hot_y_test = []
         for i in range(len(y_train)):
             one_hot_y = np.zeros(num_classes)
             one_hot_y[y_train[i]] = 1
-            y_train[i] = one_hot_y
+            one_hot_y_train.append(one_hot_y)
         for i in range(len(y_test)):
             one_hot_y = np.zeros(num_classes)
             one_hot_y[y_test[i]] = 1
-            y_test[i] = one_hot_y
+            one_hot_y_test.append(one_hot_y)
             
         print(y_train)
         tensor_train_x = torch.stack([torch.Tensor(i) for i in x_train_data]) # transform to torch tensors
-        tensor_train_y = torch.stack([torch.Tensor(i) for i in y_train])
+        tensor_train_y = torch.stack([torch.Tensor(i) for i in one_hot_y_train])
         tensor_test_x = torch.stack([torch.Tensor(i) for i in x_test_data]) # transform to torch tensors
-        tensor_test_y = torch.stack([torch.Tensor(i) for i in y_test])
+        tensor_test_y = torch.stack([torch.Tensor(i) for i in one_hot_y_test])
 
         train_dataset = utils.TensorDataset(tensor_train_x,tensor_train_y) # create your datset
         test_dataset = utils.TensorDataset(tensor_test_x,tensor_test_y) # create your datset
