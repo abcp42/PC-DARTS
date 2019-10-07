@@ -203,7 +203,7 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         
             
            
-        X_train,X_test,y_train,y_test = kfold(Xs,Ys,10,1)#dividido em 5 folds, 1 forma de fold
+        X_train,X_test,y_train,y_test = kfold(Xs,Ys,2,1)#dividido em 5 folds, 1 forma de fold
         
         x_train_data = []
         for x_path in X_train:
