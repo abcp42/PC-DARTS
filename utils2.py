@@ -199,7 +199,6 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
         for i in range(len(reader)):
             x_path, y = reader[i]
             Xs.append(x_path)
-            
             Ys.append(y)
         
             
@@ -229,7 +228,7 @@ def get_data(dataset, data_path,val1_data_path,val2_data_path, cutout_length, va
             one_hot_y = np.zeros(num_classes)
             one_hot_y[y_train[i]] = 1
             y_train[i] = one_hot_y
-         for i in range(len(y_test)):
+        for i in range(len(y_test)):
             one_hot_y = np.zeros(num_classes)
             one_hot_y[y_test[i]] = 1
             y_test[i] = one_hot_y
